@@ -1,0 +1,6 @@
+npm install firebase
+npm install vuefire
+Add to main.js: import './../../fbsettings'
+
+npm install vuex
+npm install moment
