@@ -3,6 +3,7 @@
    reference in main.js:
     import Env from './../fbsettings'
     var firebaseApp = Firebase.initializeApp(Env.firebase)
+    (exclude from git )
 */
 const Env = {
   firebase: {

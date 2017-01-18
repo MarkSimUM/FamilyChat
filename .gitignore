@@ -9,5 +9,5 @@ test/e2e/reports
 cordova/platforms
 cordova/plugins
 thumbs.db
-!.gitkeep
 fbsettings.js
+!.gitkeep
