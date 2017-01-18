@@ -1,38 +1,36 @@
 <template>
 <div>
  <div class="layout-padding">
-
      <div class="card">
-        <div class="item two-lines">
-          <img class="item-primary" :src="message.photoUrl|| ~assets/profile_placeholder.png">
+        <div class="item two-lines text-light-blue" >
+          <img class="item-primary" :src="message.photoUrl|| 'https://lh3.googleusercontent.com/-zlm-dt5DLZ4/AAAAAAAAAAI/AAAAAAAAAAA/DwcwNnOZbIg/s120-c/photo.jpg'">
+   
           <div class="item-content">
             <div>{{message.name}}</div>
-            <div>Web Developer</div>
+            <div class="text-light-grey text-sm-grow-5" v-if="message.msgTS">
+             {{msgTimeFromX(message.msgTS)}} :
+             <i class="fa fa-calendar"></i>  {{msgDate(message.msgTS)}} at {{msgTime(message.msgTS)}}
+             </div>   
           </div>
         </div>
-        <img class="item-primary" :src="imgData" v-if="imgData">
+
+       
         <div class="card-content" v-show="message.text">
-        {{message.text}}
+           {{message.text}}
+          
+        </div>
+        <div style="padding-left: 25px">
+        <img style="width: 75%"  class="item-primary" :src="imageURL" v-if="imageURL">
         </div>
         <div class="card-actions">
-          <div class="text-primary">
-            <i>thumb_up</i> 11k likes
-          </div>
-          <div class="text-primary">
+            <div class="text-primary">
             <i>mode_comment</i> 8 comments
           </div>
-          <div class="auto"></div>
-          <div class="text-grey-6">
-            23 minutes ago.
-          </div>
           
-          <button class="primary glossy" @click="$refs.modal.open()">
-           Launch
-           </button>
         </div>
       </div>
 
-  </div>
+  </div> 
 
 </div>
 </template>
@@ -41,6 +39,7 @@
 import Compname from 'components/Compname.vue'
 */
 import {fbstorage} from '../main.js'
+import moment from 'moment'
 export default {
   // componenents: {compname: Compname},
   name: 'message',
@@ -61,20 +60,30 @@ export default {
     return {
       data: [],
       dataLoading: false,
-      x: 8,
-      y: 4,
-      imgData: ''
+      messageID:  this.message['.key'],
+      imageURL: '',
+      imageURL2: '',
+      avatarDefault: '../src/assets/profile_placeholder.png'
+     
     }
   },
   methods: {
+    msgDate: function (timestamp) {
+      return moment(timestamp).format('MMMM-DD-YYYY')
+    },
+    msgTime: function (timestamp) {
+      return moment(timestamp).format('HH:mm')
+    },
+    msgTimeFromX: function (timestamp) {
+      // var now = moment()
+      return moment(timestamp).from(moment())
+    },
     delay: function () {
       return new Promise(function (resolve) {
         setTimeout(resolve, 10000)
       })
-    }
-  },
-  computed: {
-    fbImage: function () {
+    },
+    firebaseImage: function () {
       // If the image is a Firebase Storage URI we fetch the URL.
       var _this = this
       if (this.message.imageUrl) {
@@ -82,11 +91,33 @@ export default {
         if (imgURL.startsWith('gs://')) {
           // var loadingimg = LOADING_IMAGE_URL // Display a loading image first.
           fbstorage.refFromURL(imgURL).getMetadata().then(function (metadata) {
-            // this.$set(img)
-            let img = metadata.downloadURLs[0]
-            // console.log('firbase image url', metadata.downloadURLs[0])
-            _this.imgData = img
-            return img
+            _this.imageURL = metadata.downloadURLs[0]
+            // return metadata.downloadURLs[0]
+          })
+        }
+        else {
+          return imgURL
+        }
+      }
+      else {
+        return ''
+      }
+    }
+  },
+  computed: {
+    valid: function() {
+      return this.filename.length > 0 && this.file.length > 0
+    },  
+    fbImage: function () {
+      // If the image is a Firebase Storage URI we fetch the URL.
+      var _this = this
+      if (_this.message.imageUrl) {
+        var imgURL = this.message.imageUrl
+        if (imgURL.startsWith('gs://')) {
+          // var loadingimg = LOADING_IMAGE_URL // Display a loading image first.
+          fbstorage.refFromURL(imgURL).getMetadata().then(function (metadata) {
+            _this.imageURL = metadata.downloadURLs[0]
+            // console.log('fbImage: ', _this.imageURL)
           })
         }
         else {
@@ -102,47 +133,20 @@ export default {
     }
   },
   asyncComputed: {
-    sum1: {
-      get () {
-        const total1 = this.x + this.y
-        return this.delay().then(function () {
-          return total1
-        })
-      },
-      default: 'loading'
-    },
-    sum () {
-      const total = this.x + this.y
+    img () {
+      // console.log('fbImage: ', this.fbImage)
       return new Promise(resolve =>
-        setTimeout(() => resolve(total, 50000))
+        this.firebaseImage()
       )
-    },
-    img1 () {
-      return new Promise(resolve =>
-        this.fbImage
-      )
-    },
-    img2: {
-      get () {
-        return new Promise(resolve =>
-          fbstorage.refFromURL(this.message.imageUrl).getMetadata().then(function (metadata) {
-            // this.$set(img)
-            const img = metadata.downloadURLs[0]
-            console.log('firbase image url img2', img)
-            // return new Promise(resolve =>
-            //   setTimeout(() => resolve(img, 10))
-            // )
-            return img
-          })
-        )
-      }
     }
-  },
+  }
+  /*
   watch: {
     imgData: function (val, oldVal) {
       console.log('new, old', val, oldVal)
     }
   }
+  */
   /*
   destroyed: function() {
     //  code here

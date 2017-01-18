@@ -50,6 +50,9 @@ export default {
     },
     signOut: function () {
       Vue.auth.signOut()
+    },
+    getUser: function () {
+      return Vue.auth.getAuth
     }
   }
   /*

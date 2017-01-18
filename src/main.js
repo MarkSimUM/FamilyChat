@@ -32,6 +32,44 @@ export const fbdb = firebaseApp.database()
 export const fbstorage = firebaseApp.storage()
 export const LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif'
 
+//  use eventHub to emit events
+/*
+   a.  eventHub.$emit('add-todo', { text: this.newTodoText })
+   b.  eventHub.$on('add-todo', this.addTodo)
+   c.  eventHub.$off('add-todo', this.addTodo))
+// in component A
+methods: {
+  addTodo: function () {
+    eventHub.$emit('add-todo', { text: this.newTodoText })
+    this.newTodoText = ''
+  }
+}
+// in component B
+created: function () {
+  eventHub.$on('add-todo', this.addTodo)
+  eventHub.$on('delete-todo', this.deleteTodo)
+ },
+beforeDestroy: function () {
+  eventHub.$off('add-todo', this.addTodo)
+  eventHub.$off('delete-todo', this.deleteTodo)
+},
+
+*/
+
+export const eventBus = new Vue()
+
+const eventHub = new Vue({
+  data: {
+    eventhub: 'This is the event central event hub'
+  },
+  methods: {
+    changeMsg (msg) {
+      this.$emit('msgEdited', msg)
+    }
+  }
+})
+
+
 router.beforeEach(function (to, from, next) {
   // prevent access to 'requiresGuest' routes;
   // check router path for  meta: { requiresAuth: ... }
